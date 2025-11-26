@@ -2,15 +2,19 @@
 
 import logging
 
+from mcp.server.fastmcp import FastMCP
+
 from .http_client import HttpClient
+from .tools import register_all
 
 logger = logging.getLogger(__name__)
 
 
-async def register_server(client: HttpClient) -> None:
-    """Placeholder registration step for the MCP server."""
+async def register_server(client: HttpClient) -> FastMCP:
+    """Register all SEPTA MCP tools on a server instance."""
 
     logger.info("Registering SEPTA MCP server with configured backend")
-    # This placeholder can be expanded to register tools or capabilities.
-    await client.get("/")
+    server = FastMCP("septa-mcp")
+    register_all(server, client)
     logger.info("Registration completed")
+    return server
