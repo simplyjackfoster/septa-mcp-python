@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from ..domain.normalization import normalize_route_name
 from .http import FastMCP, SeptaHttpClient, fetch_json
 
 
@@ -22,16 +23,23 @@ def register(server: FastMCP, client: SeptaHttpClient) -> None:
                     "type": "string",
                     "description": "Optional line or route name to narrow the response.",
                 },
+                "normalize": {
+                    "type": "boolean",
+                    "description": "Normalize the line parameter using common route aliases.",
+                    "default": True,
+                },
             },
         },
     )
     async def train_view_tool(
-        train_id: str | None = None, line: str | None = None
+        train_id: str | None = None,
+        line: str | None = None,
+        normalize: bool = True,
     ) -> object:
         params: dict[str, str] = {}
         if train_id:
             params["train_id"] = train_id
         if line:
-            params["line"] = line
+            params["line"] = normalize_route_name(line) if normalize else line
 
         return await fetch_json(client, "TrainView/", params=params or None)
