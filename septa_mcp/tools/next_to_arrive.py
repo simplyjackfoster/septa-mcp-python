@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from ..domain.normalization import normalize_station_name
 from .http import FastMCP, SeptaHttpClient, fetch_json
 
 
@@ -33,14 +34,25 @@ def register(server: FastMCP, client: SeptaHttpClient) -> None:
                     "type": "string",
                     "description": "Optional travel preference or additional filter (API parameter req4).",
                 },
+                "normalize": {
+                    "type": "boolean",
+                    "description": "Normalize origin and destination names using common aliases.",
+                    "default": True,
+                },
             },
             "required": ["req1", "req2"],
         },
     )
     async def next_to_arrive_tool(
-        req1: str, req2: str, req3: str | None = None, req4: str | None = None
+        req1: str,
+        req2: str,
+        req3: str | None = None,
+        req4: str | None = None,
+        normalize: bool = True,
     ) -> object:
-        params: dict[str, str] = {"req1": req1, "req2": req2}
+        origin = normalize_station_name(req1) if normalize else req1
+        destination = normalize_station_name(req2) if normalize else req2
+        params: dict[str, str] = {"req1": origin, "req2": destination}
         if req3:
             params["req3"] = req3
         if req4:

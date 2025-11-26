@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from ..domain.normalization import normalize_station_name
 from .http import FastMCP, SeptaHttpClient, fetch_json
 
 
@@ -29,14 +30,23 @@ def register(server: FastMCP, client: SeptaHttpClient) -> None:
                     "minimum": 1,
                     "description": "Optional window in minutes for which to return upcoming service.",
                 },
+                "normalize": {
+                    "type": "boolean",
+                    "description": "Normalize the station name using common aliases before querying.",
+                    "default": True,
+                },
             },
             "required": ["station"],
         },
     )
     async def arrivals_tool(
-        station: str, direction: str | None = None, minutes: int | None = None
+        station: str,
+        direction: str | None = None,
+        minutes: int | None = None,
+        normalize: bool = True,
     ) -> object:
-        params: dict[str, object] = {"station": station}
+        station_value = normalize_station_name(station) if normalize else station
+        params: dict[str, object] = {"station": station_value}
         if direction:
             params["direction"] = direction
         if minutes is not None:
