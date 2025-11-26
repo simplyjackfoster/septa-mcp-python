@@ -43,3 +43,7 @@ async def create_http_client(settings: Config | None = None) -> HttpClient:
         timeout=config.timeout_seconds,
     )
     return HttpClient(client)
+
+
+# Alias used by tool registration helpers to emphasize the SEPTA-specific purpose.
+SeptaHttpClient = HttpClient
